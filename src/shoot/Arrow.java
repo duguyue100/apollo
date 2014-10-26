@@ -8,6 +8,7 @@ public class Arrow {
 	private int arrow_tail_y;
 	private double arrow_angle;
 	private double arrow_speed;
+	public boolean arrow_active;
 	
 	public Arrow()
 	{
@@ -15,6 +16,7 @@ public class Arrow {
 		this.setArrowTail(0, 0);
 		this.setArrowAngle(0);
 		this.setArrowSpeed(0);
+		this.arrow_active=true;
 	}
 	
 	public Arrow(int head_x, int head_y, int tail_x, int tail_y)

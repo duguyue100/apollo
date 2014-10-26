@@ -14,12 +14,12 @@ import java.awt.geom.Line2D;
 import java.awt.geom.QuadCurve2D;
 import java.util.ArrayList;
 
-import javax.swing.JLabel;
 import javax.swing.Timer;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import shoot.Arrow;
+import shoot.Player;
 
 /**
  * This class draw the entire playground and actions
@@ -44,6 +44,8 @@ public class ApolloFrame extends JFrame {
 	public int mouse_y;
 	public boolean mouse_release=false;
 	public boolean mouse_press=false;
+	public int mouse_release_count=0;
+	public int mouse_press_count=0;
 
 	/**
 	 * This is a constructor of Apollo frame.
@@ -103,6 +105,7 @@ public class ApolloFrame extends JFrame {
 			// TODO Auto-generated method stub
 			mouse_press=true;
 			mouse_release=false;
+			mouse_press_count++;
 		}
 
 		@Override
@@ -110,6 +113,7 @@ public class ApolloFrame extends JFrame {
 			// TODO Auto-generated method stub
 			mouse_release=true;
 			mouse_press=false;
+			mouse_release_count++;
 		}
 
 		@Override
@@ -151,33 +155,13 @@ public class ApolloFrame extends JFrame {
 		// arrow information
 
 		public ArrayList<Arrow> arrowList=new ArrayList<Arrow>();
-		private int arrow_head_x;
-		private int arrow_head_y;
-		private int arrow_tail_x;
-		private int arrow_tail_y;
-		private int arrow_travelled;
-		private double arrow_speed=0;
 		private final double arrow_max_speed=40;
+		private final int arrow_length=20;
 		
-		// bow information
+		// Players
 		
-		private int bow_x;
-		private int bow_y;
-		
-		private int bow_enda_x;
-		private int bow_enda_y;
-		private int bow_endb_x;
-		private int bow_endb_y;
-		
-		// Man's information
-		
-		private final int ARM_LENG=40;
-		private final int HEAD_SIZE=30;
-		private final int BODY_LENGTH=40;
-		private int MAN_POSITION=60;
-		private int MAN_HEIGHT=100;
-		private int ARM_START_X;
-		private int ARM_START_Y;
+		private Player p1=new Player();
+		private Player p2=new Player();
 		
 		/**
 		 * Constructor of Apollo Panel
@@ -198,24 +182,47 @@ public class ApolloFrame extends JFrame {
 			this.setPreferredSize(new Dimension(this.WIDTH, this.HEIGHT));
 			this.setDoubleBuffered(true);
 			
-			this.arrow_travelled=0;
-			
 			// init display information
 			
 			this.arrow_strength_label_x=10;
 			this.arrow_strength_label_y=this.HEIGHT-this.GROUND_HEIGHT/3;
 			
+			// init P1 info
 			
-			// init bow information
-			this.ARM_START_X=this.MAN_POSITION+this.HEAD_SIZE/2;
-			this.ARM_START_Y=this.HEIGHT-this.GROUND_HEIGHT-this.MAN_HEIGHT+this.HEAD_SIZE+this.BODY_LENGTH/2;
-			this.bow_x=this.ARM_START_X+this.ARM_LENG;
-			this.bow_y=this.ARM_START_Y;
-			this.bow_enda_x=this.bow_x-10;
-			this.bow_enda_y=this.bow_y-20;
-			this.bow_endb_x=this.bow_enda_x;
-			this.bow_endb_y=this.bow_y+20;
+			p1.MAN_POSITION=60;
+			p1.ARM_START_X=p1.MAN_POSITION+p1.HEAD_SIZE/2;
+			p1.ARM_START_Y=this.HEIGHT-this.GROUND_HEIGHT-p1.MAN_HEIGHT+p1.HEAD_SIZE+p1.BODY_LENGTH/2;
+			p1.bow_x=p1.ARM_START_X+p1.ARM_LENG;
+			p1.bow_y=p1.ARM_START_Y;
+			p1.bow_enda_x=p1.bow_x;
+			p1.bow_enda_y=p1.bow_y;
+			p1.bow_endb_x=p1.bow_x;
+			p1.bow_endb_y=p1.bow_y;
+			p1.life_block_messag_x=40;
+			p1.life_block_messag_y=35;
+			p1.life_block_x=30;
+			p1.life_block_y=20;
+			p1.life_block_length=20;
+			p1.life_block_width=200;
+			p1.life_block_fill_width=200;
 			
+			// init p2 info
+			p2.MAN_POSITION=1140;
+			p2.ARM_START_X=p2.MAN_POSITION+p2.HEAD_SIZE/2;
+			p2.ARM_START_Y=this.HEIGHT-this.GROUND_HEIGHT-p2.MAN_HEIGHT+p2.HEAD_SIZE+p2.BODY_LENGTH/2;
+			p2.bow_x=p2.ARM_START_X-p2.ARM_LENG;
+			p2.bow_y=p2.ARM_START_Y;
+			p2.bow_enda_x=p2.bow_x;
+			p2.bow_enda_y=p2.bow_y;
+			p2.bow_endb_x=p2.bow_x;
+			p2.bow_endb_y=p2.bow_y;
+			p2.life_block_messag_x=980;
+			p2.life_block_messag_y=35;
+			p2.life_block_x=970;
+			p2.life_block_y=20;
+			p2.life_block_length=20;
+			p2.life_block_width=200;
+			p2.life_block_fill_width=200;
 			
 			// init timing informtion
 			timer=new Timer(DELAY, (ActionListener) this);
@@ -235,40 +242,83 @@ public class ApolloFrame extends JFrame {
 			
 			//AffineTransform old=g2d.getTransform();
 			
-			/*** Man 1 ***/
+			/*** player 1 ***/
 			
 			// head
-			g.fillOval(this.MAN_POSITION, this.HEIGHT-this.GROUND_HEIGHT-this.MAN_HEIGHT, this.HEAD_SIZE, this.HEAD_SIZE);
+			g.fillOval(p1.MAN_POSITION, this.HEIGHT-this.GROUND_HEIGHT-p1.MAN_HEIGHT, p1.HEAD_SIZE, p1.HEAD_SIZE);
 			
 			// body
 			g2d.setStroke(new BasicStroke(5));
-			g2d.draw(new Line2D.Float(this.MAN_POSITION+this.HEAD_SIZE/2,this.HEIGHT-this.GROUND_HEIGHT-this.MAN_HEIGHT+this.HEAD_SIZE,this.MAN_POSITION+this.HEAD_SIZE/2,this.HEIGHT-this.GROUND_HEIGHT-this.MAN_HEIGHT+this.HEAD_SIZE+this.BODY_LENGTH));
+			g2d.draw(new Line2D.Float(p1.MAN_POSITION+p1.HEAD_SIZE/2, this.HEIGHT-this.GROUND_HEIGHT-p1.MAN_HEIGHT+p1.HEAD_SIZE, p1.MAN_POSITION+p1.HEAD_SIZE/2, this.HEIGHT-this.GROUND_HEIGHT-p1.MAN_HEIGHT+p1.HEAD_SIZE+p1.BODY_LENGTH));
 			
 			// leg
-			g2d.draw(new Line2D.Float(this.MAN_POSITION+this.HEAD_SIZE/2,this.HEIGHT-this.GROUND_HEIGHT-this.MAN_HEIGHT+this.HEAD_SIZE+this.BODY_LENGTH, this.MAN_POSITION+this.HEAD_SIZE/2-20, this.HEIGHT-this.GROUND_HEIGHT));
-			g2d.draw(new Line2D.Float(this.MAN_POSITION+this.HEAD_SIZE/2,this.HEIGHT-this.GROUND_HEIGHT-this.MAN_HEIGHT+this.HEAD_SIZE+this.BODY_LENGTH, this.MAN_POSITION+this.HEAD_SIZE/2+20, this.HEIGHT-this.GROUND_HEIGHT));
+			g2d.draw(new Line2D.Float(p1.MAN_POSITION+p1.HEAD_SIZE/2, this.HEIGHT-this.GROUND_HEIGHT-p1.MAN_HEIGHT+p1.HEAD_SIZE+p1.BODY_LENGTH, p1.MAN_POSITION+p1.HEAD_SIZE/2-20, this.HEIGHT-this.GROUND_HEIGHT));
+			g2d.draw(new Line2D.Float(p1.MAN_POSITION+p1.HEAD_SIZE/2, this.HEIGHT-this.GROUND_HEIGHT-p1.MAN_HEIGHT+p1.HEAD_SIZE+p1.BODY_LENGTH, p1.MAN_POSITION+p1.HEAD_SIZE/2+20, this.HEIGHT-this.GROUND_HEIGHT));
 			
 			// arm
-			g2d.draw(new Line2D.Float(this.ARM_START_X, this.ARM_START_Y, this.bow_x, this.bow_y));
+			g2d.draw(new Line2D.Float(p1.ARM_START_X, p1.ARM_START_Y, p1.bow_x, p1.bow_y));
 			
 			// bow
-			g2d.draw(new QuadCurve2D.Float(this.bow_enda_x, this.bow_enda_y,
-					this.bow_x, this.bow_y,
-					this.bow_endb_x, this.bow_endb_y));
+			g2d.draw(new QuadCurve2D.Float(p1.bow_enda_x, p1.bow_enda_y, p1.bow_x, p1.bow_y, p1.bow_endb_x, p1.bow_endb_y));
 			
-			g2d.setStroke(new BasicStroke(2));
-		
+			/*** player 2 ***/
+			
+			// head
+			g.fillOval(p2.MAN_POSITION, this.HEIGHT-this.GROUND_HEIGHT-p2.MAN_HEIGHT, p2.HEAD_SIZE, p2.HEAD_SIZE);
 
+			// body
+			g2d.setStroke(new BasicStroke(5));
+			g2d.draw(new Line2D.Float(p2.MAN_POSITION+p2.HEAD_SIZE/2, this.HEIGHT-this.GROUND_HEIGHT-p2.MAN_HEIGHT+p2.HEAD_SIZE, p2.MAN_POSITION+p2.HEAD_SIZE/2, this.HEIGHT-this.GROUND_HEIGHT-p2.MAN_HEIGHT+p2.HEAD_SIZE+p2.BODY_LENGTH));
+
+			// leg
+			g2d.draw(new Line2D.Float(p2.MAN_POSITION+p2.HEAD_SIZE/2, this.HEIGHT-this.GROUND_HEIGHT-p2.MAN_HEIGHT+p2.HEAD_SIZE+p2.BODY_LENGTH, p2.MAN_POSITION+p2.HEAD_SIZE/2-20, this.HEIGHT-this.GROUND_HEIGHT));
+			g2d.draw(new Line2D.Float(p2.MAN_POSITION+p2.HEAD_SIZE/2, this.HEIGHT-this.GROUND_HEIGHT-p2.MAN_HEIGHT+p2.HEAD_SIZE+p2.BODY_LENGTH, p2.MAN_POSITION+p2.HEAD_SIZE/2+20, this.HEIGHT-this.GROUND_HEIGHT));
+
+			// arm
+			g2d.draw(new Line2D.Float(p2.ARM_START_X, p2.ARM_START_Y, p2.bow_x, p2.bow_y));
+
+			// bow
+			g2d.draw(new QuadCurve2D.Float(p2.bow_enda_x, p2.bow_enda_y, p2.bow_x, p2.bow_y, p2.bow_endb_x, p2.bow_endb_y));
+
+			g2d.setStroke(new BasicStroke(2));
 		}
 		
 		public void drawMessage(Graphics g)
 		{
+			
 			Graphics2D g2d=(Graphics2D)g;
-			if (this.arrowList.size()==0)
+			
+			// draw arrow strength
+			if (mouse_press_count%2==1)
 			{
-				g2d.drawString(this.arrow_strength_message+"0 m/s", this.arrow_strength_label_x, this.arrow_strength_label_y);
+				if (p1.arrowList.size()==0)
+				{
+					g2d.drawString(this.arrow_strength_message+"0 m/s", this.arrow_strength_label_x, this.arrow_strength_label_y);
+				}
+				else g2d.drawString(this.arrow_strength_message+Double.toString(p1.arrowList.get(p1.arrowList.size()-1).getArrowSpeed())+" m/s", this.arrow_strength_label_x, this.arrow_strength_label_y);
 			}
-			else g2d.drawString(this.arrow_strength_message+Double.toString(this.arrowList.get(this.arrowList.size()-1).getArrowSpeed())+" m/s", this.arrow_strength_label_x, this.arrow_strength_label_y);
+			else
+			{
+				if (p2.arrowList.size()==0)
+				{
+					g2d.drawString(this.arrow_strength_message+"0 m/s", this.arrow_strength_label_x, this.arrow_strength_label_y);
+				}
+				else g2d.drawString(this.arrow_strength_message+Double.toString(p2.arrowList.get(p2.arrowList.size()-1).getArrowSpeed())+" m/s", this.arrow_strength_label_x, this.arrow_strength_label_y);
+			}
+			
+			// draw player 1 life
+			g.setColor(Color.RED);
+			g2d.drawRect(p1.life_block_x, p1.life_block_y, p1.life_block_width, p1.life_block_length);
+			g2d.fillRect(p1.life_block_x, p1.life_block_y, p1.life_block_fill_width, p1.life_block_length);
+			g.setColor(Color.BLACK);
+			g2d.drawString("P1 Life: "+Integer.toString(p1.life_block_fill_width/2), p1.life_block_messag_x, p1.life_block_messag_y);
+			
+			// draw player 2 life
+			g.setColor(Color.RED);
+			g2d.drawRect(p2.life_block_x, p2.life_block_y, p2.life_block_width, p2.life_block_length);
+			g2d.fillRect(p2.life_block_x, p2.life_block_y, p2.life_block_fill_width, p2.life_block_length);
+			g.setColor(Color.BLACK);
+			g2d.drawString("P2 Life: "+Integer.toString(p2.life_block_fill_width/2), p2.life_block_messag_x, p2.life_block_messag_y);
 		}
 		
 		public void paintComponent(Graphics g)
@@ -279,25 +329,18 @@ public class ApolloFrame extends JFrame {
 			this.drawMan(g);
 			this.drawMessage(g);
 			
-			
-//			if (this.arrow_travelled<=500)
-//			{
-//				this.arrow_travelled=arrow_x;
-//				g.drawLine(this.WIDTH/2, this.HEIGHT/2, this.WIDTH/2+50, this.HEIGHT/2);
-//			}
-//			else
-//			{
-//				int travel=arrow_x-this.arrow_travelled;
-//				g.drawLine(travel+this.WIDTH/2, this.HEIGHT/2, travel+this.WIDTH/2+50, this.HEIGHT/2);
-//			}
-			
-//			int travel=arrow_x-this.arrow_travelled;
-			
+			g.setColor(Color.BLACK);
 			// draw all arrow
 			
-			for (int i=0;i<this.arrowList.size();i++)
+			for (int i=0;i<p1.arrowList.size();i++)
 			{
-				Arrow temp=this.arrowList.get(i);
+				Arrow temp=p1.arrowList.get(i);
+				g.drawLine(temp.getArrowHeadX(), temp.getArrowHeadY(), temp.getArrowTailX(), temp.getArrowTailY());
+			}
+			
+			for (int i=0;i<p2.arrowList.size();i++)
+			{
+				Arrow temp=p2.arrowList.get(i);
 				g.drawLine(temp.getArrowHeadX(), temp.getArrowHeadY(), temp.getArrowTailX(), temp.getArrowTailY());
 			}
 		}
@@ -308,36 +351,43 @@ public class ApolloFrame extends JFrame {
 			
 			if (mouse_release==true && mouse_press==false)
 			{
-				Arrow temp=new Arrow();
-
-				double d=this.updateAngle(mouse_x, mouse_y);
-				int diff_x=(int)(20*Math.cos(d));
-				int diff_y=(int)(20*Math.sin(d));
-
-				temp.setArrowHead(this.bow_x+diff_x,	this.bow_y-diff_y);
-				temp.setArrowTail(this.bow_x-diff_x, this.bow_y+diff_y);
-				temp.setArrowAngle(d);
-
-				this.arrowList.add(temp);
+				if (mouse_press_count%2==1)
+					this.addNewArrow(p1, mouse_x, mouse_y);
+				else this.addNewArrow(p2, mouse_x, mouse_y);
 
 				mouse_release=false;
-
-			}
-			else if (mouse_press==true && mouse_release==false)
-			{
-				this.updateLastArrowInfo(mouse_x, mouse_y);				
 			}
 			
-			this.updateArrowInfo();
+			// update all arrows
+			this.updateArrowInfo(p1);
+			this.updateArrowInfo(p2);
 			
 			// update bow info
-			this.updateBowAxis(mouse_x, mouse_y);
+			if (mouse_press_count%2==1)
+				this.updateBowAxis(p1, mouse_x, mouse_y);
+			else this.updateBowAxis(p2, mouse_x, mouse_y);
 			
 			// update time
 			// if a new arrow loaded, time count as zero			
 			time_counter++;
 			
+			
 			repaint();
+		}
+		
+		public void addNewArrow(Player p, int m_x, int m_y)
+		{
+			Arrow temp=new Arrow();
+
+			double d=this.updateAngle(p, mouse_x, mouse_y);
+			int diff_x=(int)(this.arrow_length*Math.cos(d));
+			int diff_y=(int)(this.arrow_length*Math.sin(d));
+
+			temp.setArrowHead(p.bow_x+diff_x, p.bow_y-diff_y);
+			temp.setArrowTail(p.bow_x-diff_x, p.bow_y+diff_y);
+			temp.setArrowAngle(d);
+			
+			p.arrowList.add(temp);
 		}
 		
 		/**
@@ -346,25 +396,25 @@ public class ApolloFrame extends JFrame {
 		 * @param m_y mouse_y
 		 * @return degree 0-2pi
 		 */
-		public double updateAngle(int m_x, int m_y)
+		public double updateAngle(Player p, int m_x, int m_y)
 		{
-			double x=(double)(m_x-this.ARM_START_X);
-			double y=(double)(this.ARM_START_Y-m_y);
+			double x=(double)(m_x-p.ARM_START_X);
+			double y=(double)(p.ARM_START_Y-m_y);
 			double z=Math.sqrt((double)x*(double)x+(double)y*(double)y);
 			
 			double v_sin=y/z;
 			double v_cos=x/z;
 			
-			this.bow_y=this.ARM_START_Y-(int)(this.ARM_LENG*v_sin);
-			this.bow_x=this.ARM_START_X+(int)(this.ARM_LENG*v_cos);
+			p.bow_y=p.ARM_START_Y-(int)(p.ARM_LENG*v_sin);
+			p.bow_x=p.ARM_START_X+(int)(p.ARM_LENG*v_cos);
 			
 			double d_sin=Math.asin(v_sin);
 			
-			if (this.bow_x<this.ARM_START_X && this.bow_y<this.ARM_START_Y)
+			if (p.bow_x<=p.ARM_START_X && p.bow_y<=p.ARM_START_Y)
 				d_sin=(Math.PI-d_sin);
-			else if (this.bow_x<this.ARM_START_X && this.bow_y>this.ARM_START_Y)
+			else if (p.bow_x<=p.ARM_START_X && p.bow_y>=p.ARM_START_Y)
 				d_sin=(Math.PI-d_sin);
-			else if (this.bow_x>this.ARM_START_X && this.bow_y>this.ARM_START_Y)
+			else if (p.bow_x>=p.ARM_START_X && p.bow_y>=p.ARM_START_Y)
 				d_sin+=(2*Math.PI);
 			
 			return d_sin;
@@ -375,46 +425,81 @@ public class ApolloFrame extends JFrame {
 		 * @param m_x mouse_x
 		 * @param m_y mouse_y
 		 */
-		public void updateBowAxis(int m_x, int m_y)
+		public void updateBowAxis(Player p, int m_x, int m_y)
 		{
-			double d_sin=this.updateAngle(m_x, m_y);
+			double d_sin=this.updateAngle(p, m_x, m_y);
 			
-			this.bow_enda_x=this.ARM_START_X+(int)(this.ARM_LENG*(Math.cos(d_sin+Math.PI/6)));
-			this.bow_enda_y=this.ARM_START_Y-(int)(this.ARM_LENG*(Math.sin(d_sin+Math.PI/6)));
+			p.bow_enda_x=p.ARM_START_X+(int)(p.ARM_LENG*(Math.cos(d_sin+Math.PI/6)));
+			p.bow_enda_y=p.ARM_START_Y-(int)(p.ARM_LENG*(Math.sin(d_sin+Math.PI/6)));
 			
-			this.bow_endb_x=this.ARM_START_X+(int)(this.ARM_LENG*(Math.cos(d_sin-Math.PI/6)));
-			this.bow_endb_y=this.ARM_START_Y-(int)(this.ARM_LENG*(Math.sin(d_sin-Math.PI/6)));
+			p.bow_endb_x=p.ARM_START_X+(int)(p.ARM_LENG*(Math.cos(d_sin-Math.PI/6)));
+			p.bow_endb_y=p.ARM_START_Y-(int)(p.ARM_LENG*(Math.sin(d_sin-Math.PI/6)));
 			
-			double x=(double)(m_x-this.ARM_START_X);
-			double y=(double)(this.ARM_START_Y-m_y);
+			double x=(double)(m_x-p.ARM_START_X);
+			double y=(double)(p.ARM_START_Y-m_y);
 			double z=Math.sqrt((double)x*(double)x+(double)y*(double)y);
 			
 			double speed=z/(double)this.m2px;
-			if (speed>40) speed=40.0;
-			if (this.arrowList.size()!=0)
-				this.arrowList.get(this.arrowList.size()-1).setArrowSpeed(speed);
+			if (speed>this.arrow_max_speed) speed=this.arrow_max_speed;
+			if (p.arrowList.size()!=0)
+				p.arrowList.get(p.arrowList.size()-1).setArrowSpeed(speed);
 		}
 		
-		public void updateLastArrowInfo(int m_x, int m_y)
+		public void updateLastArrowInfo(Player p, int m_x, int m_y)
 		{
-			if (this.arrowList.size()!=0)
-				this.arrowList.get(this.arrowList.size()-1).setArrowAngle(this.updateAngle(m_x, m_y));
+			if (p.arrowList.size()!=0)
+				p.arrowList.get(p.arrowList.size()-1).setArrowAngle(this.updateAngle(p, m_x, m_y));
 		}
 		
-		public void updateArrowInfo()
+		public void updateArrowInfo(Player p)
 		{
-			for (int i=0;i<this.arrowList.size();i++)
+			for (int i=0;i<p.arrowList.size();i++)
 			{
-				int diff_x=(int)(this.arrowList.get(i).getArrowSpeed()*Math.cos(this.arrowList.get(i).getArrowAngle()));
-				int diff_y=(int)(this.arrowList.get(i).getArrowSpeed()*Math.sin(this.arrowList.get(i).getArrowAngle()));
+				Arrow t=p.arrowList.get(i);
+				// touch the ground stop
+				if (t.getArrowHeadY()>this.HEIGHT-this.GROUND_HEIGHT)
+				{
+					p.arrowList.get(i).setArrowSpeed(0);
+					p.arrowList.get(i).arrow_active=false;
+				}
 				
-				int temp_head_x=this.arrowList.get(i).getArrowHeadX()+diff_x;
-				int temp_head_y=this.arrowList.get(i).getArrowHeadY()-diff_y;
-				int temp_tail_x=this.arrowList.get(i).getArrowTailX()+diff_x;
-				int temp_tail_y=this.arrowList.get(i).getArrowTailY()-diff_y;
+				// shoot on guy also stop
 				
-				this.arrowList.get(i).setArrowHead(temp_head_x, temp_head_y);
-				this.arrowList.get(i).setArrowTail(temp_tail_x, temp_tail_y);
+				// shoot on p1.
+				if ((t.getArrowHeadY()<this.HEIGHT-this.GROUND_HEIGHT && t.getArrowHeadY()>this.HEIGHT-p1.MAN_HEIGHT-p1.HEAD_SIZE) &&
+					(t.getArrowHeadX()>p1.MAN_POSITION && t.getArrowHeadX()<p1.MAN_POSITION+p1.HEAD_SIZE))
+				{
+					p.arrowList.get(i).setArrowSpeed(0);
+					
+					if (p.arrowList.get(i).arrow_active==true)
+						p1.life_block_fill_width-=p1.LIFE_FACTOR;
+					
+					p.arrowList.get(i).arrow_active=false;
+				}
+				
+				// shoot on p2
+				
+				if ((t.getArrowHeadY()<this.HEIGHT-this.GROUND_HEIGHT && t.getArrowHeadY()>this.HEIGHT-p2.MAN_HEIGHT-p2.HEAD_SIZE) &&
+					(t.getArrowHeadX()>p2.MAN_POSITION && t.getArrowHeadX()<p2.MAN_POSITION+p2.HEAD_SIZE))
+				{
+					p.arrowList.get(i).setArrowSpeed(0);
+
+					if (p.arrowList.get(i).arrow_active==true)
+						p2.life_block_fill_width-=p2.LIFE_FACTOR;
+
+					p.arrowList.get(i).arrow_active=false;
+				}
+				
+				int diff_x=(int)(t.getArrowSpeed()*Math.cos(t.getArrowAngle()));
+				int diff_y=(int)(t.getArrowSpeed()*Math.sin(t.getArrowAngle()));
+				
+				int temp_head_x=t.getArrowHeadX()+diff_x;
+				int temp_head_y=t.getArrowHeadY()-diff_y;
+				int temp_tail_x=t.getArrowTailX()+diff_x;
+				int temp_tail_y=t.getArrowTailY()-diff_y;
+				
+				p.arrowList.get(i).setArrowHead(temp_head_x, temp_head_y);
+				p.arrowList.get(i).setArrowTail(temp_tail_x, temp_tail_y);
 			}
 		}
 	}
