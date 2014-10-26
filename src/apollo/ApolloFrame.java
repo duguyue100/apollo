@@ -319,6 +319,19 @@ public class ApolloFrame extends JFrame {
 			g2d.fillRect(p2.life_block_x, p2.life_block_y, p2.life_block_fill_width, p2.life_block_length);
 			g.setColor(Color.BLACK);
 			g2d.drawString("P2 Life: "+Integer.toString(p2.life_block_fill_width/2), p2.life_block_messag_x, p2.life_block_messag_y);
+			
+			// game over call
+			
+			if (p1.life_block_fill_width==0 || p2.life_block_fill_width==0)
+			{
+				g.setColor(Color.BLUE);
+				if (p1.life_block_fill_width==0 && p2.life_block_fill_width>0)
+					g2d.drawString("Game Over, Player 2 Win!", this.WIDTH/2-50, this.HEIGHT/2);
+				else if (p1.life_block_fill_width>0 && p2.life_block_fill_width==0)
+					g2d.drawString("Game Over, Player 1 Win!", this.WIDTH/2-50, this.HEIGHT/2);
+				else if (p1.life_block_fill_width==0 && p2.life_block_fill_width==0)
+					g2d.drawString("Game Over, Tie!", this.WIDTH/2-50, this.HEIGHT/2);
+			}
 		}
 		
 		public void paintComponent(Graphics g)
@@ -372,7 +385,14 @@ public class ApolloFrame extends JFrame {
 			time_counter++;
 			
 			
+			// end game settings
+			
 			repaint();
+			
+			if (p1.life_block_fill_width==0 || p2.life_block_fill_width==0)
+			{
+				timer.stop();
+			}
 		}
 		
 		public void addNewArrow(Player p, int m_x, int m_y)

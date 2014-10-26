@@ -7,7 +7,7 @@ public class ApolloMain {
 	public static int Y=100;
 	public static int WIDTH=1200;
 	public static int HEIGHT=600;
-	public static String PROJECT_TITLE="APOLLO";
+	public static String PROJECT_TITLE="APOLLO by Yuhuang Hu & Maziar Kosarifar";
 	
 	public static void main(String[] args)
 	{
