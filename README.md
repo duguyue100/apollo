@@ -6,6 +6,7 @@ A Java game for assignment of WAES3308 Numerical Methods for Artificial Intellig
 ##Updates
 
 + Arrow calculation class updated [2014-09-24]
++ Major release [2014-10-26]
 
 ##Contact
 
