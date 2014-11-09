@@ -137,6 +137,8 @@ public class ApolloFrame extends JFrame {
 		
 		private final int DELAY=60;
 		private final int GROUND_HEIGHT=30;
+		private final int GROUND_START=0;
+		private final int GROUND_END=3600;
 		
 		private int WIDTH;
 		private int HEIGHT;
@@ -147,6 +149,15 @@ public class ApolloFrame extends JFrame {
 		private int arrow_strength_label_x;
 		private int arrow_strength_label_y;
 		private String arrow_strength_message="Arrow Strength: ";
+		
+		private int screen_x;
+		private int screen_y;
+		
+		private int body_shift;
+		
+		// physical constant
+		
+		private final double gravity=9.8;
 		
 		// timing
 		private Timer timer;
@@ -162,6 +173,10 @@ public class ApolloFrame extends JFrame {
 		
 		private Player p1=new Player();
 		private Player p2=new Player();
+		private final int P1_POS=60;
+		private final int P2_POS=3500;
+		private final int P1_ID=1;
+		private final int P2_ID=2;
 		
 		/**
 		 * Constructor of Apollo Panel
@@ -189,7 +204,8 @@ public class ApolloFrame extends JFrame {
 			
 			// init P1 info
 			
-			p1.MAN_POSITION=60;
+			p1.PLAYER_ID=1;
+			p1.MAN_POSITION=this.P1_POS;
 			p1.ARM_START_X=p1.MAN_POSITION+p1.HEAD_SIZE/2;
 			p1.ARM_START_Y=this.HEIGHT-this.GROUND_HEIGHT-p1.MAN_HEIGHT+p1.HEAD_SIZE+p1.BODY_LENGTH/2;
 			p1.bow_x=p1.ARM_START_X+p1.ARM_LENG;
@@ -207,7 +223,8 @@ public class ApolloFrame extends JFrame {
 			p1.life_block_fill_width=200;
 			
 			// init p2 info
-			p2.MAN_POSITION=1140;
+			p2.PLAYER_ID=2;
+			p2.MAN_POSITION=this.P2_POS;
 			p2.ARM_START_X=p2.MAN_POSITION+p2.HEAD_SIZE/2;
 			p2.ARM_START_Y=this.HEIGHT-this.GROUND_HEIGHT-p2.MAN_HEIGHT+p2.HEAD_SIZE+p2.BODY_LENGTH/2;
 			p2.bow_x=p2.ARM_START_X-p2.ARM_LENG;
@@ -224,7 +241,13 @@ public class ApolloFrame extends JFrame {
 			p2.life_block_width=200;
 			p2.life_block_fill_width=200;
 			
-			// init timing informtion
+			// screen axis
+			
+			this.screen_x=p1.ARM_START_X;
+			this.screen_y=p1.ARM_START_Y;
+			this.body_shift=0;
+			
+			// init timing information
 			timer=new Timer(DELAY, (ActionListener) this);
 			timer.start();
 		}
@@ -245,40 +268,81 @@ public class ApolloFrame extends JFrame {
 			/*** player 1 ***/
 			
 			// head
-			g.fillOval(p1.MAN_POSITION, this.HEIGHT-this.GROUND_HEIGHT-p1.MAN_HEIGHT, p1.HEAD_SIZE, p1.HEAD_SIZE);
+			g.fillOval(p1.MAN_POSITION-this.body_shift,
+					this.HEIGHT-this.GROUND_HEIGHT-p1.MAN_HEIGHT,
+					p1.HEAD_SIZE,
+					p1.HEAD_SIZE);
 			
 			// body
 			g2d.setStroke(new BasicStroke(5));
-			g2d.draw(new Line2D.Float(p1.MAN_POSITION+p1.HEAD_SIZE/2, this.HEIGHT-this.GROUND_HEIGHT-p1.MAN_HEIGHT+p1.HEAD_SIZE, p1.MAN_POSITION+p1.HEAD_SIZE/2, this.HEIGHT-this.GROUND_HEIGHT-p1.MAN_HEIGHT+p1.HEAD_SIZE+p1.BODY_LENGTH));
+			g2d.draw(new Line2D.Float(p1.MAN_POSITION+p1.HEAD_SIZE/2-this.body_shift,
+									this.HEIGHT-this.GROUND_HEIGHT-p1.MAN_HEIGHT+p1.HEAD_SIZE,
+									p1.MAN_POSITION+p1.HEAD_SIZE/2-this.body_shift,
+									this.HEIGHT-this.GROUND_HEIGHT-p1.MAN_HEIGHT+p1.HEAD_SIZE+p1.BODY_LENGTH));
 			
 			// leg
-			g2d.draw(new Line2D.Float(p1.MAN_POSITION+p1.HEAD_SIZE/2, this.HEIGHT-this.GROUND_HEIGHT-p1.MAN_HEIGHT+p1.HEAD_SIZE+p1.BODY_LENGTH, p1.MAN_POSITION+p1.HEAD_SIZE/2-20, this.HEIGHT-this.GROUND_HEIGHT));
-			g2d.draw(new Line2D.Float(p1.MAN_POSITION+p1.HEAD_SIZE/2, this.HEIGHT-this.GROUND_HEIGHT-p1.MAN_HEIGHT+p1.HEAD_SIZE+p1.BODY_LENGTH, p1.MAN_POSITION+p1.HEAD_SIZE/2+20, this.HEIGHT-this.GROUND_HEIGHT));
+			g2d.draw(new Line2D.Float(p1.MAN_POSITION+p1.HEAD_SIZE/2-this.body_shift,
+									this.HEIGHT-this.GROUND_HEIGHT-p1.MAN_HEIGHT+p1.HEAD_SIZE+p1.BODY_LENGTH,
+									p1.MAN_POSITION+p1.HEAD_SIZE/2-20-this.body_shift,
+									this.HEIGHT-this.GROUND_HEIGHT));
+			
+			g2d.draw(new Line2D.Float(p1.MAN_POSITION+p1.HEAD_SIZE/2-this.body_shift,
+									this.HEIGHT-this.GROUND_HEIGHT-p1.MAN_HEIGHT+p1.HEAD_SIZE+p1.BODY_LENGTH,
+									p1.MAN_POSITION+p1.HEAD_SIZE/2+20-this.body_shift,
+									this.HEIGHT-this.GROUND_HEIGHT));
 			
 			// arm
-			g2d.draw(new Line2D.Float(p1.ARM_START_X, p1.ARM_START_Y, p1.bow_x, p1.bow_y));
+			g2d.draw(new Line2D.Float(p1.ARM_START_X-this.body_shift,
+							p1.ARM_START_Y,
+							p1.bow_x-this.body_shift,
+							p1.bow_y));
 			
 			// bow
-			g2d.draw(new QuadCurve2D.Float(p1.bow_enda_x, p1.bow_enda_y, p1.bow_x, p1.bow_y, p1.bow_endb_x, p1.bow_endb_y));
+			g2d.draw(new QuadCurve2D.Float(p1.bow_enda_x-this.body_shift,
+						p1.bow_enda_y,
+						p1.bow_x-this.body_shift,
+						p1.bow_y,
+						p1.bow_endb_x-this.body_shift,
+						p1.bow_endb_y));
 			
 			/*** player 2 ***/
 			
 			// head
-			g.fillOval(p2.MAN_POSITION, this.HEIGHT-this.GROUND_HEIGHT-p2.MAN_HEIGHT, p2.HEAD_SIZE, p2.HEAD_SIZE);
+			g.fillOval(p2.MAN_POSITION-this.body_shift,
+					this.HEIGHT-this.GROUND_HEIGHT-p2.MAN_HEIGHT,
+					p2.HEAD_SIZE,
+					p2.HEAD_SIZE);
 
 			// body
 			g2d.setStroke(new BasicStroke(5));
-			g2d.draw(new Line2D.Float(p2.MAN_POSITION+p2.HEAD_SIZE/2, this.HEIGHT-this.GROUND_HEIGHT-p2.MAN_HEIGHT+p2.HEAD_SIZE, p2.MAN_POSITION+p2.HEAD_SIZE/2, this.HEIGHT-this.GROUND_HEIGHT-p2.MAN_HEIGHT+p2.HEAD_SIZE+p2.BODY_LENGTH));
+			g2d.draw(new Line2D.Float(p2.MAN_POSITION+p2.HEAD_SIZE/2-this.body_shift,
+									this.HEIGHT-this.GROUND_HEIGHT-p2.MAN_HEIGHT+p2.HEAD_SIZE,
+									p2.MAN_POSITION+p2.HEAD_SIZE/2-this.body_shift,
+									this.HEIGHT-this.GROUND_HEIGHT-p2.MAN_HEIGHT+p2.HEAD_SIZE+p2.BODY_LENGTH));
 
 			// leg
-			g2d.draw(new Line2D.Float(p2.MAN_POSITION+p2.HEAD_SIZE/2, this.HEIGHT-this.GROUND_HEIGHT-p2.MAN_HEIGHT+p2.HEAD_SIZE+p2.BODY_LENGTH, p2.MAN_POSITION+p2.HEAD_SIZE/2-20, this.HEIGHT-this.GROUND_HEIGHT));
-			g2d.draw(new Line2D.Float(p2.MAN_POSITION+p2.HEAD_SIZE/2, this.HEIGHT-this.GROUND_HEIGHT-p2.MAN_HEIGHT+p2.HEAD_SIZE+p2.BODY_LENGTH, p2.MAN_POSITION+p2.HEAD_SIZE/2+20, this.HEIGHT-this.GROUND_HEIGHT));
+			g2d.draw(new Line2D.Float(p2.MAN_POSITION+p2.HEAD_SIZE/2-this.body_shift,
+									this.HEIGHT-this.GROUND_HEIGHT-p2.MAN_HEIGHT+p2.HEAD_SIZE+p2.BODY_LENGTH,
+									p2.MAN_POSITION+p2.HEAD_SIZE/2-20-this.body_shift,
+									this.HEIGHT-this.GROUND_HEIGHT));
+			g2d.draw(new Line2D.Float(p2.MAN_POSITION+p2.HEAD_SIZE/2-this.body_shift,
+									this.HEIGHT-this.GROUND_HEIGHT-p2.MAN_HEIGHT+p2.HEAD_SIZE+p2.BODY_LENGTH,
+									p2.MAN_POSITION+p2.HEAD_SIZE/2+20-this.body_shift,
+									this.HEIGHT-this.GROUND_HEIGHT));
 
 			// arm
-			g2d.draw(new Line2D.Float(p2.ARM_START_X, p2.ARM_START_Y, p2.bow_x, p2.bow_y));
+			g2d.draw(new Line2D.Float(p2.ARM_START_X-this.body_shift,
+									p2.ARM_START_Y,
+									p2.bow_x-this.body_shift,
+									p2.bow_y));
 
 			// bow
-			g2d.draw(new QuadCurve2D.Float(p2.bow_enda_x, p2.bow_enda_y, p2.bow_x, p2.bow_y, p2.bow_endb_x, p2.bow_endb_y));
+			g2d.draw(new QuadCurve2D.Float(p2.bow_enda_x-this.body_shift,
+										p2.bow_enda_y,
+										p2.bow_x-this.body_shift,
+										p2.bow_y,
+										p2.bow_endb_x-this.body_shift,
+										p2.bow_endb_y));
 
 			g2d.setStroke(new BasicStroke(2));
 		}
@@ -348,13 +412,20 @@ public class ApolloFrame extends JFrame {
 			for (int i=0;i<p1.arrowList.size();i++)
 			{
 				Arrow temp=p1.arrowList.get(i);
-				g.drawLine(temp.getArrowHeadX(), temp.getArrowHeadY(), temp.getArrowTailX(), temp.getArrowTailY());
+				g.drawLine(temp.getArrowHeadX()-this.screen_x,
+						temp.getArrowHeadY()+this.screen_y,
+						temp.getArrowTailX()-this.screen_x, 
+						temp.getArrowTailY()+this.screen_y);
 			}
 			
 			for (int i=0;i<p2.arrowList.size();i++)
 			{
 				Arrow temp=p2.arrowList.get(i);
-				g.drawLine(temp.getArrowHeadX(), temp.getArrowHeadY(), temp.getArrowTailX(), temp.getArrowTailY());
+				g.drawLine(temp.getArrowHeadX()-this.screen_x,
+						temp.getArrowHeadY()+this.screen_y,
+						temp.getArrowTailX()-this.screen_x,
+						temp.getArrowTailY()+this.screen_y);
+
 			}
 		}
 
@@ -365,28 +436,113 @@ public class ApolloFrame extends JFrame {
 			if (mouse_release==true && mouse_press==false)
 			{
 				if (mouse_press_count%2==1)
+				{
 					this.addNewArrow(p1, mouse_x, mouse_y);
-				else this.addNewArrow(p2, mouse_x, mouse_y);
+				}
+				else
+				{
+					this.addNewArrow(p2, mouse_x+this.GROUND_END-this.WIDTH, mouse_y);
+				}
 
 				mouse_release=false;
+			}
+			
+			if (mouse_release==false && mouse_press==true)
+			{
+				if (mouse_press_count%2==1)
+				{
+					this.screen_x=0;
+					this.screen_y=0;
+					this.body_shift=0;
+				}
+				else
+				{
+					this.screen_x=this.GROUND_END-this.WIDTH;
+					this.screen_y=0;
+					this.body_shift=this.GROUND_END-this.WIDTH;
+				}
+				
+				this.time_counter=0;
 			}
 			
 			// update all arrows
 			this.updateArrowInfo(p1);
 			this.updateArrowInfo(p2);
-			
+						
 			// update bow info
 			if (mouse_press_count%2==1)
+			{
 				this.updateBowAxis(p1, mouse_x, mouse_y);
-			else this.updateBowAxis(p2, mouse_x, mouse_y);
+				
+				if (p1.arrowList.size()!=0)
+				{
+					Arrow currArrow=p1.arrowList.get(p1.arrowList.size()-1);
+					
+					if ((currArrow.getArrowHeadX()>=this.GROUND_START+this.WIDTH/2) &&
+						(currArrow.getArrowHeadX()<=this.GROUND_END-this.WIDTH/2) && currArrow.arrow_active==true)
+					{
+						this.screen_x=currArrow.getArrowHeadX()-this.WIDTH/2;
+						
+						if (currArrow.getArrowHeadY()<=this.HEIGHT/2)
+							this.screen_y=this.HEIGHT/2-currArrow.getArrowHeadY();
+						else this.screen_y=0;
+						this.body_shift=this.screen_x;
+					}
+					else if (currArrow.getArrowHeadX()<this.GROUND_START+this.WIDTH/2 && currArrow.arrow_active==true)
+					{
+						this.screen_x=0;
+						this.screen_y=0;
+						this.body_shift=0;
+					}
+				}
+			}
+			else
+			{
+				this.updateBowAxis(p2, mouse_x+this.GROUND_END-this.WIDTH, mouse_y);
+				
+				if (p2.arrowList.size()!=0)
+				{
+					Arrow currArrow=p2.arrowList.get(p2.arrowList.size()-1);
+					
+					if ((currArrow.getArrowHeadX()>=this.GROUND_START+this.WIDTH/2) &&
+						(currArrow.getArrowHeadX()<=this.GROUND_END-this.WIDTH/2) && currArrow.arrow_active==true)
+					{
+						this.screen_x=currArrow.getArrowHeadX()-this.WIDTH/2;
+						
+						if (currArrow.getArrowHeadY()<=this.HEIGHT/2)
+							this.screen_y=this.HEIGHT/2-currArrow.getArrowHeadY();
+						else this.screen_y=0;
+						this.body_shift=this.screen_x;
+					}
+					else if (currArrow.getArrowHeadX()>this.GROUND_END-this.WIDTH/2 && currArrow.arrow_active==true)
+					{
+						this.screen_x=this.GROUND_END-this.WIDTH;
+						this.screen_y=0;
+						this.body_shift=this.GROUND_END-this.WIDTH;
+					}
+				}
+			}
+			
+			// updating p1 and p2's angle
+			for (int i=0; i<p1.arrowList.size();i++)
+			{
+				// updating angle
+				Arrow updatedArrow=this.updateArrowInfo(p1.arrowList.get(i), this.time_counter);
+				p1.arrowList.set(i, updatedArrow);
+			}
+
+			for (int i=0; i<p2.arrowList.size();i++)
+			{
+				Arrow updatedArrow=this.updateArrowInfo(p2.arrowList.get(i), this.time_counter);
+				p2.arrowList.set(i, updatedArrow);
+			}
+
 			
 			// update time
 			// if a new arrow loaded, time count as zero			
 			time_counter++;
 			
-			
-			// end game settings
-			
+			// update game settings
 			repaint();
 			
 			if (p1.life_block_fill_width==0 || p2.life_block_fill_width==0)
@@ -399,13 +555,15 @@ public class ApolloFrame extends JFrame {
 		{
 			Arrow temp=new Arrow();
 
-			double d=this.updateAngle(p, mouse_x, mouse_y);
+			double d=this.updateAngle(p, m_x, m_y);
 			int diff_x=(int)(this.arrow_length*Math.cos(d));
 			int diff_y=(int)(this.arrow_length*Math.sin(d));
 
 			temp.setArrowHead(p.bow_x+diff_x, p.bow_y-diff_y);
 			temp.setArrowTail(p.bow_x-diff_x, p.bow_y+diff_y);
 			temp.setArrowAngle(d);
+			
+			temp.arrow_owner=p.PLAYER_ID;
 			
 			p.arrowList.add(temp);
 		}
@@ -471,6 +629,46 @@ public class ApolloFrame extends JFrame {
 				p.arrowList.get(p.arrowList.size()-1).setArrowAngle(this.updateAngle(p, m_x, m_y));
 		}
 		
+		public Arrow updateArrowInfo(Arrow arr, double t)
+		{
+			Arrow result=arr;
+			
+			if (result.arrow_active==true)
+			{
+				double v_hor=arr.getArrowSpeed()*Math.cos(arr.getArrowAngle());
+				double v_ver=arr.getArrowSpeed()*Math.sin(arr.getArrowAngle());
+
+				v_ver-=this.gravity*(double)(this.DELAY/1000.0);
+
+				result.setArrowSpeed(Math.sqrt(v_hor*v_hor+v_ver*v_ver));
+
+				if (result.arrow_owner==this.P1_ID)
+				{
+					if (v_ver>=0)
+					{
+						double d_sin=v_ver/result.getArrowSpeed();
+						result.setArrowAngle(Math.asin(d_sin));
+					}
+					else
+					{
+						double d_sin=v_ver/result.getArrowSpeed();
+						result.setArrowAngle(Math.asin(d_sin)+2*Math.PI);
+					}
+				}
+				else if (result.arrow_owner==this.P2_ID)
+				{
+					double d_sin=v_ver/result.getArrowSpeed();
+					result.setArrowAngle(Math.PI-Math.asin(d_sin));
+				}
+			}
+			else
+			{
+				result.setArrowSpeed(0);
+			}
+			
+			return result;
+		}
+		
 		public void updateArrowInfo(Player p)
 		{
 			for (int i=0;i<p.arrowList.size();i++)
@@ -486,8 +684,9 @@ public class ApolloFrame extends JFrame {
 				// shoot on guy also stop
 				
 				// shoot on p1.
-				if ((t.getArrowHeadY()<this.HEIGHT-this.GROUND_HEIGHT && t.getArrowHeadY()>this.HEIGHT-p1.MAN_HEIGHT-p1.HEAD_SIZE) &&
-					(t.getArrowHeadX()>p1.MAN_POSITION && t.getArrowHeadX()<p1.MAN_POSITION+p1.HEAD_SIZE))
+				if (((t.getArrowHeadY()<this.HEIGHT-this.GROUND_HEIGHT+10 && t.getArrowHeadY()>this.HEIGHT-p1.MAN_HEIGHT-p1.HEAD_SIZE-10) &&
+					(t.getArrowHeadX()>p1.MAN_POSITION-10 && t.getArrowHeadX()<p1.MAN_POSITION+p1.HEAD_SIZE+10)) &&
+					t.arrow_owner!=this.P1_ID)
 				{
 					p.arrowList.get(i).setArrowSpeed(0);
 					
@@ -499,8 +698,9 @@ public class ApolloFrame extends JFrame {
 				
 				// shoot on p2
 				
-				if ((t.getArrowHeadY()<this.HEIGHT-this.GROUND_HEIGHT && t.getArrowHeadY()>this.HEIGHT-p2.MAN_HEIGHT-p2.HEAD_SIZE) &&
-					(t.getArrowHeadX()>p2.MAN_POSITION && t.getArrowHeadX()<p2.MAN_POSITION+p2.HEAD_SIZE))
+				if (((t.getArrowHeadY()<this.HEIGHT-this.GROUND_HEIGHT+10 && t.getArrowHeadY()>this.HEIGHT-p2.MAN_HEIGHT-p2.HEAD_SIZE-10) &&
+					(t.getArrowHeadX()>p2.MAN_POSITION-10 && t.getArrowHeadX()<p2.MAN_POSITION+p2.HEAD_SIZE+10)) &&
+					t.arrow_owner!=this.P2_ID)
 				{
 					p.arrowList.get(i).setArrowSpeed(0);
 
@@ -510,13 +710,29 @@ public class ApolloFrame extends JFrame {
 					p.arrowList.get(i).arrow_active=false;
 				}
 				
-				int diff_x=(int)(t.getArrowSpeed()*Math.cos(t.getArrowAngle()));
-				int diff_y=(int)(t.getArrowSpeed()*Math.sin(t.getArrowAngle()));
+				int diff_x=(int)(t.getArrowSpeed()*Math.cos(t.getArrowAngle())*1.3);
+				int diff_y=(int)(t.getArrowSpeed()*Math.sin(t.getArrowAngle())*1.3);
 				
-				int temp_head_x=t.getArrowHeadX()+diff_x;
-				int temp_head_y=t.getArrowHeadY()-diff_y;
-				int temp_tail_x=t.getArrowTailX()+diff_x;
-				int temp_tail_y=t.getArrowTailY()-diff_y;
+				int cen_x=(t.getArrowHeadX()+t.getArrowTailX())/2;
+				int cen_y=(t.getArrowHeadY()+t.getArrowHeadY())/2;
+				
+				int temp_head_x=cen_x+(int)(this.arrow_length*Math.cos(t.getArrowAngle()));
+				int temp_head_y=cen_y-(int)(this.arrow_length*Math.sin(t.getArrowAngle()));
+				int temp_tail_x=cen_x-(int)(this.arrow_length*Math.cos(t.getArrowAngle()));
+				int temp_tail_y=cen_y+(int)(this.arrow_length*Math.sin(t.getArrowAngle()));
+				
+				temp_head_x+=diff_x;
+				temp_head_y-=diff_y;
+				temp_tail_x+=diff_x;
+				temp_tail_y-=diff_y;
+				
+				if (t.arrow_active==false)
+				{
+					temp_head_x=t.getArrowHeadX();
+					temp_head_y=t.getArrowHeadY();
+					temp_tail_x=t.getArrowTailX();
+					temp_tail_y=t.getArrowTailY();
+				}
 				
 				p.arrowList.get(i).setArrowHead(temp_head_x, temp_head_y);
 				p.arrowList.get(i).setArrowTail(temp_tail_x, temp_tail_y);

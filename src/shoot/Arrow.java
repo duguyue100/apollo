@@ -9,6 +9,7 @@ public class Arrow {
 	private double arrow_angle;
 	private double arrow_speed;
 	public boolean arrow_active;
+	public byte arrow_owner=0;
 	
 	public Arrow()
 	{

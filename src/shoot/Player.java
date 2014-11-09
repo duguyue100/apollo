@@ -11,6 +11,7 @@ public class Player {
 	public final int BODY_LENGTH=40;
 	public final int MAN_HEIGHT=100;
 	public final int LIFE_FACTOR=20;
+	public byte PLAYER_ID;
 	public int MAN_POSITION;
 	public int ARM_START_X;
 	public int ARM_START_Y;
