@@ -483,9 +483,10 @@ public class ApolloFrame extends JFrame {
 					{
 						this.screen_x=currArrow.getArrowHeadX()-this.WIDTH/2;
 						
-						if (currArrow.getArrowHeadY()<=this.HEIGHT/2)
-							this.screen_y=this.HEIGHT/2-currArrow.getArrowHeadY();
-						else this.screen_y=0;
+						this.screen_y=0;
+//						if (currArrow.getArrowHeadY()<=this.HEIGHT/2)
+//							this.screen_y=this.HEIGHT/2-currArrow.getArrowHeadY();
+//						else this.screen_y=0;
 						this.body_shift=this.screen_x;
 					}
 					else if ((currArrow.getArrowHeadX()<this.GROUND_START+this.WIDTH/2) && currArrow.arrow_active==true)
@@ -515,9 +516,10 @@ public class ApolloFrame extends JFrame {
 					{
 						this.screen_x=currArrow.getArrowHeadX()-this.WIDTH/2;
 						
-						if (currArrow.getArrowHeadY()<=this.HEIGHT/2)
-							this.screen_y=this.HEIGHT/2-currArrow.getArrowHeadY();
-						else this.screen_y=0;
+						this.screen_y=0;
+//						if (currArrow.getArrowHeadY()<=this.HEIGHT/2)
+//							this.screen_y=this.HEIGHT/2-currArrow.getArrowHeadY();
+//						else this.screen_y=0;
 						this.body_shift=this.screen_x;
 					}
 					else if (currArrow.getArrowHeadX()>this.GROUND_END-this.WIDTH/2 && currArrow.arrow_active==true)
