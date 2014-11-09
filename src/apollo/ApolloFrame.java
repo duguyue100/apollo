@@ -488,15 +488,21 @@ public class ApolloFrame extends JFrame {
 						else this.screen_y=0;
 						this.body_shift=this.screen_x;
 					}
-					else if (currArrow.getArrowHeadX()<this.GROUND_START+this.WIDTH/2 && currArrow.arrow_active==true)
+					else if ((currArrow.getArrowHeadX()<this.GROUND_START+this.WIDTH/2) && currArrow.arrow_active==true)
 					{
 						this.screen_x=0;
 						this.screen_y=0;
 						this.body_shift=0;
 					}
+					else if (currArrow.getArrowHeadX()>this.GROUND_END-this.WIDTH/2 && currArrow.arrow_active==true)
+					{
+						this.screen_x=this.GROUND_END-this.WIDTH;
+						this.screen_y=0;
+						this.body_shift=this.GROUND_END-this.WIDTH;
+					}
 				}
 			}
-			else
+			else if (mouse_press_count%2==0 && mouse_press_count!=0)
 			{
 				this.updateBowAxis(p2, mouse_x+this.GROUND_END-this.WIDTH, mouse_y);
 				
@@ -519,6 +525,12 @@ public class ApolloFrame extends JFrame {
 						this.screen_x=this.GROUND_END-this.WIDTH;
 						this.screen_y=0;
 						this.body_shift=this.GROUND_END-this.WIDTH;
+					}
+					else if ((currArrow.getArrowHeadX()<this.GROUND_START+this.WIDTH/2) && currArrow.arrow_active==true)
+					{
+						this.screen_x=0;
+						this.screen_y=0;
+						this.body_shift=0;
 					}
 				}
 			}
