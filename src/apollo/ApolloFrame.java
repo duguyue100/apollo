@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -12,8 +13,11 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Line2D;
 import java.awt.geom.QuadCurve2D;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
+import javax.imageio.ImageIO;
 import javax.swing.Timer;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -179,6 +183,10 @@ public class ApolloFrame extends JFrame {
 		private final int P1_ID=1;
 		private final int P2_ID=2;
 		
+		// background
+		
+		private Image img=null;
+		
 		/**
 		 * Constructor of Apollo Panel
 		 * 
@@ -247,6 +255,15 @@ public class ApolloFrame extends JFrame {
 			this.screen_x=p1.ARM_START_X;
 			this.screen_y=p1.ARM_START_Y;
 			this.body_shift=0;
+			
+			// read image
+			
+			try {
+				this.img = ImageIO.read(new File("background.jpg"));
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			
 			// init timing information
 			timer=new Timer(DELAY, (ActionListener) this);
@@ -403,6 +420,21 @@ public class ApolloFrame extends JFrame {
 		{
 			super.paintComponent(g);
 			
+			if (mouse_press_count==0)
+			{
+				g.drawImage(img,
+						0, 0,
+						null);
+			}
+			else
+			{
+				g.drawImage(img,
+						0, 0,
+						this.WIDTH, this.HEIGHT-this.GROUND_HEIGHT,
+						this.screen_x, this.screen_y,
+						this.screen_x+this.WIDTH, this.screen_y+this.HEIGHT-this.GROUND_HEIGHT,
+						null);
+			}
 			this.drawGround(g);
 			this.drawMan(g);
 			this.drawMessage(g);
