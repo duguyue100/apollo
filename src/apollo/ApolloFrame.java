@@ -168,6 +168,7 @@ public class ApolloFrame extends JFrame {
 		public ArrayList<Arrow> arrowList=new ArrayList<Arrow>();
 		private final double arrow_max_speed=40;
 		private final int arrow_length=20;
+		private double last_arrow_speed=0;
 		
 		// Players
 		
@@ -576,6 +577,7 @@ public class ApolloFrame extends JFrame {
 			temp.setArrowHead(p.bow_x+diff_x, p.bow_y-diff_y);
 			temp.setArrowTail(p.bow_x-diff_x, p.bow_y+diff_y);
 			temp.setArrowAngle(d);
+			temp.setArrowSpeed(this.last_arrow_speed);
 			
 			temp.arrow_owner=p.PLAYER_ID;
 			
@@ -635,6 +637,7 @@ public class ApolloFrame extends JFrame {
 			if (speed>this.arrow_max_speed) speed=this.arrow_max_speed;
 			if (p.arrowList.size()!=0)
 				p.arrowList.get(p.arrowList.size()-1).setArrowSpeed(speed);
+			this.last_arrow_speed=speed;
 		}
 		
 		public void updateLastArrowInfo(Player p, int m_x, int m_y)
@@ -656,29 +659,23 @@ public class ApolloFrame extends JFrame {
 
 				result.setArrowSpeed(Math.sqrt(v_hor*v_hor+v_ver*v_ver));
 
-				if (result.arrow_owner==this.P1_ID)
+				if (v_ver>=0 && v_hor>=0)
 				{
-					if (v_ver>=0)
-					{
-						double d_sin=v_ver/result.getArrowSpeed();
-						result.setArrowAngle(Math.asin(d_sin));
-					}
-					else
-					{
-						double d_sin=v_ver/result.getArrowSpeed();
-						result.setArrowAngle(Math.asin(d_sin)+2*Math.PI);
-					}
+					double d_sin=v_ver/result.getArrowSpeed();
+					result.setArrowAngle(Math.asin(d_sin));
 				}
-				else if (result.arrow_owner==this.P2_ID)
+				else if (v_ver<0 && v_hor>=0)
+				{
+					double d_sin=v_ver/result.getArrowSpeed();
+					result.setArrowAngle(Math.asin(d_sin)+2*Math.PI);
+				}
+				else
 				{
 					double d_sin=v_ver/result.getArrowSpeed();
 					result.setArrowAngle(Math.PI-Math.asin(d_sin));
 				}
 			}
-			else
-			{
-				result.setArrowSpeed(0);
-			}
+			else result.setArrowSpeed(0);
 			
 			return result;
 		}
@@ -688,18 +685,12 @@ public class ApolloFrame extends JFrame {
 			for (int i=0;i<p.arrowList.size();i++)
 			{
 				Arrow t=p.arrowList.get(i);
-				// touch the ground stop
-				if (t.getArrowHeadY()>this.HEIGHT-this.GROUND_HEIGHT)
-				{
-					p.arrowList.get(i).setArrowSpeed(0);
-					p.arrowList.get(i).arrow_active=false;
-				}
 				
 				// shoot on guy also stop
 				
 				// shoot on p1.
-				if (((t.getArrowHeadY()<this.HEIGHT-this.GROUND_HEIGHT+10 && t.getArrowHeadY()>this.HEIGHT-p1.MAN_HEIGHT-p1.HEAD_SIZE-10) &&
-					(t.getArrowHeadX()>p1.MAN_POSITION-10 && t.getArrowHeadX()<p1.MAN_POSITION+p1.HEAD_SIZE+10)) &&
+				if ((((t.getArrowHeadY()<this.HEIGHT-this.GROUND_HEIGHT+10 && t.getArrowHeadY()>this.HEIGHT-p1.MAN_HEIGHT-p1.HEAD_SIZE-10) &&
+					(t.getArrowHeadX()>p1.MAN_POSITION-10 && t.getArrowHeadX()<p1.MAN_POSITION+p1.HEAD_SIZE+10))) &&
 					t.arrow_owner!=this.P1_ID)
 				{
 					p.arrowList.get(i).setArrowSpeed(0);
@@ -712,8 +703,8 @@ public class ApolloFrame extends JFrame {
 				
 				// shoot on p2
 				
-				if (((t.getArrowHeadY()<this.HEIGHT-this.GROUND_HEIGHT+10 && t.getArrowHeadY()>this.HEIGHT-p2.MAN_HEIGHT-p2.HEAD_SIZE-10) &&
-					(t.getArrowHeadX()>p2.MAN_POSITION-10 && t.getArrowHeadX()<p2.MAN_POSITION+p2.HEAD_SIZE+10)) &&
+				if ((((t.getArrowHeadY()<this.HEIGHT-this.GROUND_HEIGHT+10 && t.getArrowHeadY()>this.HEIGHT-p2.MAN_HEIGHT-p2.HEAD_SIZE-10) &&
+					(t.getArrowHeadX()>p2.MAN_POSITION-10 && t.getArrowHeadX()<p2.MAN_POSITION+p2.HEAD_SIZE+10))) &&
 					t.arrow_owner!=this.P2_ID)
 				{
 					p.arrowList.get(i).setArrowSpeed(0);
@@ -721,6 +712,13 @@ public class ApolloFrame extends JFrame {
 					if (p.arrowList.get(i).arrow_active==true)
 						p2.life_block_fill_width-=p2.LIFE_FACTOR;
 
+					p.arrowList.get(i).arrow_active=false;
+				}
+				
+				// touch the ground stop
+				if (t.getArrowHeadY()>this.HEIGHT-this.GROUND_HEIGHT)
+				{
+					p.arrowList.get(i).setArrowSpeed(0);
 					p.arrowList.get(i).arrow_active=false;
 				}
 				
