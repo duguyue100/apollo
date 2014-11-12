@@ -1,7 +1,5 @@
 package apollo;
 
-import shoot.ArrowInfo;
-
 public class ApolloMain {
 	public static int X=50;
 	public static int Y=100;
