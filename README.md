@@ -11,6 +11,15 @@ Feel free to grab and have it modified.
 + Major release [2014-10-26]
 + Final version update [2014-11-12]
 
+##Notes
+
++ The project is pre-compiled, in order to run in terminal
+   ```
+   $ java -classpath "bin" apollo.ApolloMain
+   ```
+
++ The full program is written in Mac OSX, so there may some problems if you run it in Windows environment. However, there should be no problem when you run `.jar` file. 
+
 ##Contact
 
 Hu Yuhuang
