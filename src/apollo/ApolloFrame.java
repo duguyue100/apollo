@@ -672,12 +672,6 @@ public class ApolloFrame extends JFrame {
 			this.last_arrow_speed=speed;
 		}
 		
-		public void updateLastArrowInfo(Player p, int m_x, int m_y)
-		{
-			if (p.arrowList.size()!=0)
-				p.arrowList.get(p.arrowList.size()-1).setArrowAngle(this.updateAngle(p, m_x, m_y));
-		}
-		
 		public Arrow updateArrowInfo(Arrow arr, double t)
 		{
 			Arrow result=arr;
